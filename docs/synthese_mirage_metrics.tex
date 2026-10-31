@@ -1,0 +1,635 @@
+% =============================================================================
+% Étude de cas Mirage Metrics – Moteur de prospection
+% Kilian Viallon
+% Compilation : pdflatex synthese_mirage_metrics.tex (deux fois pour la table
+% des matières), ou directement sur Overleaf.
+% =============================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\IfFileExists{lmodern.sty}{\usepackage{lmodern}\usepackage{microtype}}{}
+\usepackage[french]{babel}
+\usepackage[a4paper,margin=2.3cm]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage[hidelinks]{hyperref}
+
+% ----------------------------------------------------------------- Couleurs --
+\definecolor{mirage}{HTML}{1F3A5F}
+\definecolor{accent}{HTML}{2E7D6B}
+\definecolor{lightgray}{HTML}{F3F5F8}
+\definecolor{hypo}{HTML}{8A5A00}
+
+\hypersetup{colorlinks=true, linkcolor=mirage, urlcolor=accent}
+
+% ------------------------------------------------------------- Mise en page --
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist{itemsep=0.15em, topsep=0.3em}
+\renewcommand{\arraystretch}{1.25}
+
+\titleformat{\section}{\Large\bfseries\color{mirage}}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{mirage}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{accent}}{}{0em}{}
+\titlespacing*{\section}{0pt}{1.6em}{0.7em}
+\titlespacing*{\subsection}{0pt}{1.3em}{0.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}Étude de cas Mirage Metrics}
+\fancyhead[R]{\small\color{gray}Kilian Viallon}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+% ---------------------------------------------------------------- Commandes --
+% Rubrique d'une fiche entreprise
+\newcommand{\rubrique}[1]{\par\smallskip{\bfseries\color{accent}#1}\par}
+% Étiquette « hypothèse »
+\newcommand{\hyp}{\textcolor{hypo}{\textbf{[H]}}~}
+% Encadré pour les messages de prospection
+\newtcolorbox{mailbox}[1]{enhanced, breakable, colback=lightgray, colframe=mirage,
+  boxrule=0.6pt, arc=2pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  fonttitle=\bfseries\small, title={#1}, before upper={\setlength{\parskip}{0.6em}}}
+% Encadré de synthèse
+\newtcolorbox{synthese}{enhanced, colback=accent!6, colframe=accent, boxrule=0.6pt,
+  arc=2pt, left=8pt, right=8pt}
+
+\begin{document}
+
+% ==================================================================== TITRE ==
+\begin{center}
+  {\Huge\bfseries\color{mirage} Étude de cas Mirage Metrics}\\[0.4em]
+  {\Large Moteur de prospection : qualification et scoring de cibles en Catalogne}\\[1em]
+  {\large Kilian Viallon}\\[0.2em]
+  {\small Candidature GTM Engineer -- Octobre 2026}\\[0.4em]
+  {\small Code et outil : \href{https://github.com/kilianviallon/mirage-prospect-scoring}{github.com/kilianviallon/mirage-prospect-scoring}}
+\end{center}
+
+\vspace{0.8em}
+
+\begin{synthese}
+\textbf{En bref}
+\begin{itemize}
+  \item \textbf{Zone choisie :} la Catalogne. 10 entreprises réelles analysées dans 5 secteurs : transport, distribution B2B, événementiel, industrie, BTP.
+  \item \textbf{Thèse :} les meilleures cibles de Mirage sont les \textbf{intermédiaires entre un client et des prestataires}, qui reçoivent des demandes non structurées (e-mails, PDF, plans), consultent un réseau, chiffrent, puis ressaisissent dans un logiciel.
+  \item \textbf{Outil :} un moteur de scoring en Python avec une interface Streamlit. Il calcule un score sur 100, un indice de confiance et une priorité, avec une explication pour chaque entreprise.
+  \item \textbf{Trois meilleures cibles :} Grup Rubau (BTP), Ibercóndor (transport) et García de Pou (distribution).
+  \item \textbf{Faux positifs :} Grupo Moldtrans et Transcoma, écartés automatiquement par les règles de disqualification.
+\end{itemize}
+\end{synthese}
+
+\textbf{Convention :} dans les fiches, les \textbf{faits vérifiés} sont accompagnés de leur source ; les \textbf{hypothèses commerciales} sont signalées par \hyp.
+
+\tableofcontents
+\newpage
+
+% ============================================================== PARTIE 2 ====
+\section{Comprendre le produit et le marché}
+
+\subsection{Les workflows automatisés chez OFRET et SWILL}
+
+OFRET Groupe est un commissionnaire de transport composé de deux entités : \textbf{OFRET} pour le transport complet et \textbf{SWILL} pour le groupage (\href{https://miragemetrics.com/case-studies/ofret}{cas client OFRET}).
+
+\subsubsection{Deux logiques de cotation différentes}
+\begin{itemize}
+  \item \textbf{Transport complet (OFRET) :} un camion entier pour un seul client. Le prix se trouve auprès d'un transporteur du réseau, selon le trajet, la date et la disponibilité.
+  \item \textbf{Groupage (SWILL) :} plusieurs clients partagent un camion sur des lignes régulières. Le prix vient d'une grille tarifaire (zone, nombre de palettes, poids).
+  \item Les réseaux de transporteurs, les documents et la définition d'une demande « standard » diffèrent entre les deux entités. Mirage a donc déployé \textbf{un agent de cotation par entité}.
+  \item Les deux environnements reposent sur une \textbf{plateforme commune} : une amélioration développée pour l'un profite à l'autre, ce qui accélère l'évolution de l'agent.
+\end{itemize}
+
+\subsubsection{Une intégration dans l'outil existant}
+\begin{itemize}
+  \item Mirage s'est connecté directement à l'\textbf{API de Logitude World}, le TMS déjà utilisé par le groupe, sans ajouter de nouveau logiciel.
+  \item Les ingénieurs de Mirage ont travaillé \textbf{sur place}, avec les documents et les processus réels des deux entités, et non avec un modèle générique. La première étape a été de s'approprier l'environnement dans lequel l'agent devait fonctionner.
+  \item Le déploiement s'est fait par étapes : l'automatisation documentaire d'abord, puis la cotation, puis une couche de vérification.
+\end{itemize}
+
+\subsubsection{Le processus métier et le rôle de l'agent}
+Le processus de cotation se déroule en cinq étapes :
+\begin{enumerate}
+  \item réception de la demande du client ;
+  \item extraction des données nécessaires au chiffrage (origine, destination, poids, volume, incoterms, délais) ;
+  \item recherche de la meilleure offre dans le réseau de transporteurs sous-traitants, ou application de la grille tarifaire en groupage ;
+  \item envoi du devis au client et enregistrement dans le TMS ;
+  \item organisation du transport si le client accepte l'offre (étape réalisée par les équipes, et non par l'agent).
+\end{enumerate}
+L'agent prend en charge les étapes 1 à 4. Les demandes incomplètes ou inhabituelles sont transmises à un opérateur pour validation, au lieu d'être devinées.
+
+\subsubsection{Résultats publiés}
+\begin{itemize}
+  \item Plus de \textbf{90 \%} des demandes standard traitées automatiquement dans les deux entités.
+  \item Un délai de réponse au client passé de \textbf{plusieurs heures à quelques minutes}.
+  \item \textbf{Aucun nouveau logiciel} à apprendre pour les équipes.
+\end{itemize}
+
+\subsection{Problèmes métiers et gains}
+\begin{itemize}
+  \item \textbf{Le problème :} les tâches administratives et les échanges entre parties prenantes sont les plus longs. Lire chaque demande, en extraire les données, consulter les transporteurs et ressaisir le tout dans le TMS prend un temps considérable et génère des erreurs.
+  \item \textbf{Le gain pour les opérateurs :} un temps important libéré pour les demandes complexes et la relation client.
+  \item \textbf{Le gain pour le client final :} une réponse plus rapide, donc une meilleure satisfaction. En transport, le premier à répondre avec un prix correct remporte souvent l'affaire.
+\end{itemize}
+
+\subsection{Profil des entreprises ciblées}
+Les entreprises qui ont besoin de ce type d'agent sont celles qui jouent le rôle d'\textbf{intermédiaire entre un client et des prestataires}. Les profils les plus pertinents :
+\begin{itemize}
+  \item \textbf{Commissionnaires et transitaires :} ils vendent un transport qu'ils achètent à un réseau de transporteurs (profil OFRET).
+  \item \textbf{Distributeurs B2B :} ils reçoivent des commandes en PDF ou par e-mail, à saisir dans l'ERP (profil Biodéal).
+  \item \textbf{Entreprises générales du BTP :} après avoir remporté un chantier, elles font appel à de nombreux corps de métier et assurent le lien entre le client et les sous-traitants.
+  \item \textbf{Sous-traitants industriels (aéronautique, usinage) :} ils chiffrent des pièces à partir de plans tout en coordonnant leurs propres prestataires (matière, traitement de surface, peinture).
+  \item \textbf{Agences événementielles :} elles répondent à un cahier des charges en mobilisant de nombreux prestataires, d'où beaucoup de comparaisons de devis et de transferts de données.
+\end{itemize}
+
+% ============================================================== PARTIE 3 ====
+\section{Dix entreprises pertinentes en Catalogne}
+
+\subsection{Vue d'ensemble}
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}l l X l@{}}
+\toprule
+\textbf{Entreprise} & \textbf{Secteur} & \textbf{Activité} & \textbf{Cas Mirage} \\
+\midrule
+Ibertransit & Transport & Commissionnaire, groupage et transport complet & OFRET / SWILL \\
+Aduanas Pujol Rubió (APR) & Transport & Transitaire et agent en douane & OFRET / SWILL \\
+Ibercóndor & Transport & Transitaire multimodal & OFRET / SWILL \\
+García de Pou & Distribution & Produits pour l'hôtellerie-restauration & Biodéal \\
+CREA Group Events & Événementiel & Agence événementielle & Analogie \\
+Bacus Events & Événementiel & Agence événementielle & Analogie \\
+Mecánica Hosta & Industrie & Usinage aéronautique & John Cockerill \\
+Gutmar & Industrie & Usinage de précision aéronautique & John Cockerill \\
+Calaf Constructora & BTP & Bâtiment et génie civil & OCBM / Rouandi \\
+Grup Rubau & BTP & Génie civil et bâtiment & OCBM / Rouandi \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% ------------------------------------------------------------- TRANSPORT --
+\subsection{Transport et logistique}
+
+\subsubsection{Ibertransit (et sa division Ibercargo pour le transport complet)}
+\textbf{Site :} \href{https://ibertransit.com/}{ibertransit.com} -- Commissionnaire de transport à Parets del Vallès (Barcelone) : transport complet et groupage.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Groupage international de 1 à 24\,000 kg, avec un réseau de correspondants dans toute l'Europe (\href{https://ibertransit.com/grupajes-internacionales/}{groupage}).
+  \item Transport complet vers 28 pays : la division Ibercargo « gestiona una flota de más de 2000 vehículos » via un réseau d'agents (\href{https://ibertransit.com/cargas-completas-europa/}{transport complet}).
+  \item Promesse publique d'un devis en 15 minutes (\href{https://ibertransit.com/}{site}).
+\end{itemize}
+\rubrique{Workflow : cotation des demandes clients}
+\begin{enumerate}
+  \item Lire la demande de cotation du client.
+  \item Extraire les données utiles (origine, destination, poids, volume, date).
+  \item Calculer le prix : grille tarifaire en groupage, ou recherche d'un transporteur disponible en transport complet.
+  \item Envoyer le devis au client et l'enregistrer dans le TMS.
+  \item Transmettre les demandes incomplètes ou inhabituelles à un employé pour validation.
+\end{enumerate}
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp La gestion des demandes et le chiffrage sont faits à la main par des employés.
+  \item[] \hyp Les « 2\,000 véhicules » sont des transporteurs sous-traités : un modèle de commissionnaire proche d'OFRET.
+\end{itemize}
+\textbf{Cas Mirage de référence :} OFRET / SWILL.
+
+\subsubsection{Aduanas Pujol Rubió (APR)}
+\textbf{Site :} \href{https://www.apr.es/}{apr.es} -- Transitaire et agent en douane à El Prat de Llobregat.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Plus de 140 salariés, entreprise familiale (\href{https://www.apr.es/quienes-somos/}{à propos}).
+  \item Groupage et transport complet routiers ; maritime en conteneur complet et en groupage (\href{https://www.apr.es/transporte-terrestre/}{route}).
+  \item Outil client « Easy Rate » pour les tarifs aériens et maritimes uniquement (\href{https://www.apr.es/area-cliente/}{espace client}).
+\end{itemize}
+\rubrique{Workflows pertinents}
+\begin{enumerate}
+  \item \textbf{Cotation routière} (groupage et transport complet) : même logique qu'Ibertransit. Ce workflow n'est pas couvert par Easy Rate.
+  \item \textbf{Préparation des déclarations en douane :} extraction des données de la facture commerciale et de la liste de colisage, prérenseignement des documents, puis validation par le déclarant d'APR.
+\end{enumerate}
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp La gestion des demandes et le chiffrage en transport routier sont faits à la main.
+  \item[] \hyp Easy Rate montre une appétence pour le numérique : Mirage doit se présenter comme un complément, pas comme un doublon.
+\end{itemize}
+\textbf{Cas Mirage de référence :} OFRET / SWILL ; la documentation douanière est aussi une prochaine étape annoncée par Mirage chez OFRET.
+
+\subsubsection{Ibercóndor}
+\textbf{Site :} \href{https://ibercondor.com/}{ibercondor.com} -- Transitaire multimodal (route, mer, air) à Barcelone.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Plus de 100 salariés, bureaux à Barcelone, Madrid et Valence (\href{https://ibercondor.com/}{site}).
+  \item Groupage et transport complet « mediante acuerdos con las principales flotas » (\href{https://ibercondor.com/transporte-de-mercancias/transporte-terrestre-de-mercancias/}{route}).
+  \item Formulaire de demande de devis en texte libre ; espace client hébergé sur \textbf{Visual Trans}, le TMS utilisé (\href{https://ibercondor.com/contacto/}{contact}).
+\end{itemize}
+\rubrique{Workflow : cotation à partir de demandes en texte libre}
+Même logique qu'OFRET : lecture et extraction de la demande, calcul du prix, devis, enregistrement dans Visual Trans.
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp Le tri et la lecture des demandes se font à la main.
+  \item[] \hyp Visual Trans dispose d'une API : à vérifier lors du premier échange.
+\end{itemize}
+\textbf{Cas Mirage de référence :} OFRET / SWILL.
+
+% ---------------------------------------------------------- DISTRIBUTION --
+\subsection{Distribution B2B}
+
+\subsubsection{García de Pou}
+\textbf{Site :} \href{https://www.garciadepou.com/}{garciadepou.com} -- Fabricant et distributeur de produits pour l'hôtellerie-restauration, Ordis (Girona).
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item 480 salariés, plus de 70\,000 clients dans 70 pays ; grossistes et grands comptes comme Metro, Bunzl ou Sodexo ; entreprise familiale (\href{https://www.garciadepou.com/nl/about-garcia-de-pou}{à propos}).
+  \item Commandes reçues par la boutique en ligne, par e-mail et par téléphone (\href{https://www.garciadepou.com/en/faqs-en}{FAQ}).
+\end{itemize}
+\rubrique{Workflow : prise de commande}
+\begin{enumerate}
+  \item Lire la commande (PDF, e-mail, tableur).
+  \item Identifier le client et les références produits.
+  \item Vérifier les prix et le stock.
+  \item Créer la commande dans l'ERP.
+  \item Confirmer au client.
+\end{enumerate}
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp Comme chez Biodéal, une partie des commandes arrive sous des formats variés (PDF, tableur, texte) et est saisie à la main.
+  \item[] \hyp ERP probablement Microsoft Dynamics AX, d'après le profil du responsable informatique (à confirmer).
+\end{itemize}
+\textbf{Cas Mirage de référence :} Biodéal.
+
+% ---------------------------------------------------------- ÉVÉNEMENTIEL --
+\subsection{Événementiel}
+
+\subsubsection{CREA Group Events}
+\textbf{Site :} \href{https://www.creagroupevents.com/}{creagroupevents.com} -- Agence événementielle, Barcelone et Madrid.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Plus de 120 projets par an ; société privée (\href{https://www.creagroupevents.com/en/about-us}{à propos}).
+  \item Les briefs arrivent par un formulaire en texte libre (\href{https://www.creagroupevents.com/en/contact}{contact}).
+\end{itemize}
+\rubrique{Workflow : réponse à un brief client}
+Extraction du brief, consultation des fournisseurs (lieux, traiteur, audiovisuel), comparaison des devis, montage du budget, envoi de la proposition au client.
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp Les briefs sont extraits à la main, et les devis des fournisseurs comparés sur tableur.
+  \item[] \hyp L'actionnaire (Eventforce Partners SL) reste à identifier.
+\end{itemize}
+\textbf{Cas Mirage de référence :} aucun ; analogie avec la cotation chez OFRET.
+
+\subsubsection{Bacus Events}
+\textbf{Site :} \href{https://bacusevents.com/}{bacusevents.com} -- Agence événementielle à Barcelone, fondée en 1993.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Plus de 100 événements par an ; clients BMW, Amazon, Nestlé, UEFA (\href{https://bacusevents.com/}{site}).
+  \item Processus publié (\href{https://bacusevents.com/servicios}{services}) : brief du client (date, nombre de participants, budget), réponse sous 24 h, proposition avec un budget détaillé par blocs en moins de deux semaines.
+\end{itemize}
+\rubrique{Workflow}
+Les mêmes étapes que chez CREA Group Events, qui reprennent la logique de la cotation chez OFRET.
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp La plus grande partie des deux semaines de préparation passe dans la consultation des fournisseurs et le budget.
+\end{itemize}
+\textbf{Cas Mirage de référence :} aucun ; analogie avec la cotation chez OFRET.
+
+% ------------------------------------------------------------- INDUSTRIE --
+\subsection{Industrie et aéronautique}
+
+\subsubsection{Mecánica Hosta}
+\textbf{Site :} \href{https://mecanicahosta.com/}{mecanicahosta.com} -- Usinage aéronautique, spatial et défense, Riells i Viabrea (Girona).
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item 20 salariés, certifiée EN 9100 (\href{https://mecanicahosta.com/compania/}{entreprise}).
+  \item Coordonne elle-même ses partenaires pour les traitements thermiques, de surface et la peinture (\href{https://mecanicahosta.com/tratamientos-y-servicios/}{services}).
+  \item Devis promis sous 24 à 48 h après envoi des fichiers CAD (\href{https://mecanicahosta.com/contacto/}{contact}).
+\end{itemize}
+\rubrique{Workflow : chiffrage d'une pièce}
+Chiffrage à partir des plans 3D, consultation des partenaires, comparaison de leurs offres, devis.
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp Le chiffrage repose sur un bureau technique très réduit, sous pression pour tenir le délai de 24 à 48 h.
+  \item[] \hyp Le schéma correspond parfaitement, mais la petite taille limite le budget.
+\end{itemize}
+\textbf{Cas Mirage de référence :} John Cockerill.
+
+\subsubsection{Gutmar}
+\textbf{Site :} \href{https://www.gutmar.com/}{gutmar.com} -- Usinage de précision aéronautique et spatiale, Sant Cugat del Vallès.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Certifiée EN 9100, plus de 1\,000 références aéronautiques (\href{https://dca.cat/ca/membre/gutmar-s-a/}{DCA}).
+  \item Environ 110 salariés (\href{https://fly-news.es/industria/lauria-partners-compra-gutmar/}{Fly News}).
+  \item Rachetée en 2025 par le fonds Lauria Partners, avec l'objectif de « professionnaliser » l'entreprise (\href{https://www.elnacional.cat/oneconomia/es/empresas/ingenieria-catalana-alta-precision-gutmar-se-vende-lauria-hyperion_1399651_102.html}{El Nacional}).
+\end{itemize}
+\rubrique{Workflow : chiffrage d'une pièce}
+Lecture des plans, estimation du temps machine et de la matière, consultation des sous-traitants en traitement de surface, devis.
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp Ces étapes sont réalisées par des techniciens, sans automatisation.
+  \item[] \hyp La nouvelle direction, issue d'un fonds, est ouverte à la modernisation des processus.
+\end{itemize}
+\textbf{Cas Mirage de référence :} John Cockerill.
+
+% ------------------------------------------------------------------- BTP --
+\subsection{BTP}
+
+\subsubsection{Calaf Constructora (Calaf Grup)}
+\textbf{Site :} \href{https://calafconstructora.com/}{calafconstructora.com} -- Bâtiment et génie civil, Calaf et Sant Joan Despí.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Groupe familial de 800 salariés, plus de 200 chantiers en cours (\href{https://calafgrup.com/en/}{Calaf Grup}).
+  \item 149 marchés publics remportés (\href{https://contratos.gobierto.es/adjudicatarios/constructora-de-calaf-sau}{Gobierto}).
+  \item Vient de remporter le bâtiment ambulatoire de Vall d'Hebron, 33 M€ (\href{https://www.cronicaglobal.cat/vida/20261014/calaf-serom-construiran-primera-gran-vall-dhebron/1003742802404_0.html}{Crónica Global, oct. 2026}).
+\end{itemize}
+\rubrique{Workflows pertinents}
+\begin{itemize}
+  \item Métrés à partir des plans des appels d'offres.
+  \item Consultation des sous-traitants et comparaison de leurs devis.
+  \item Préparation de l'offre ; vérification, signature et dépôt par l'équipe.
+  \item Workflow secondaire : nomenclatures de fabrication pour la filiale Calaf Industrial.
+\end{itemize}
+Ces étapes pèsent lourd dans la préparation des offres, avant même que le chantier soit remporté.
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp Les métrés sont réalisés par des techniciens d'études à partir des plans PDF, puis saisis dans un logiciel de chiffrage (TCQ, Presto…). La lecture des plans et la saisie restent manuelles.
+  \item[] \hyp La consultation des sous-traitants et la comparaison des devis se font par e-mail et sur tableur.
+\end{itemize}
+\textbf{Cas Mirage de référence :} OCBM / Rouandi.
+
+\subsubsection{Grup Rubau}
+\textbf{Site :} \href{https://www.rubau.com/compania/historia/}{rubau.com} -- Génie civil et bâtiment, Girona.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Environ 420 salariés, entreprise familiale (\href{https://cronicaglobal.elespanol.com/business/confidente-vip/20240904/la-constructora-gerundense-rubau-bate-records-millones/883161775_0.html}{Crónica Global}).
+  \item 227 M€ de chiffre d'affaires en 2025, en hausse de 11 \% (\href{https://www.viaempresa.cat/empresa/gironina-rubau-creix-11-tanca-2025-arribant-227-milions-euros_2237049_102.html}{VIA Empresa}).
+  \item 143 marchés publics remportés (\href{https://www.contractes.cat/empreses/A17018813}{contractes.cat}).
+  \item \textbf{Preuve directe :} leurs \href{https://construccionsrubau.teamtailor.com/jobs/8395657-tecnico-de-estudios-junior-h-m}{offres d'emploi de technicien d'études} décrivent le workflow : faire les métrés, découper le chantier en lots pour les sous-traitants, demander et relancer les devis puis les comparer, le tout dans le logiciel Presto.
+\end{itemize}
+\rubrique{Workflows pertinents}
+Métrés, découpage en lots, consultation des sous-traitants, comparaison des devis, saisie dans Presto.
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp Le découpage en lots, la consultation des sous-traitants et la comparaison des devis se font à la main.
+\end{itemize}
+\textbf{Cas Mirage de référence :} OCBM / Rouandi.
+
+% ============================================================== PARTIE 4 ====
+\section{Le moteur de qualification et de scoring}
+
+L'outil est disponible sur \href{https://github.com/kilianviallon/mirage-prospect-scoring}{GitHub}, avec les instructions d'installation dans le README. Il est développé en Python, avec une interface Streamlit.
+
+\subsection{Principe}
+L'outil sépare \textbf{ce qu'on observe} de \textbf{ce qu'on en conclut}. L'analyste saisit des données observables (type d'activité, effectif, format des demandes, logiciel, signaux récents), chacune avec sa source et son statut (fait vérifié ou hypothèse). L'outil calcule ensuite les notes avec des règles fixes, définies dans un fichier de configuration : le score est donc \textbf{reproductible} et modifiable sans toucher au code.
+
+Le calcul se fait en trois étapes :
+\begin{enumerate}
+  \item \textbf{Disqualification :} procédure collective ou liquidation, centre de décision hors de la zone, plus de 5\,000 salariés, outil concurrent déjà en place.
+  \item \textbf{Score sur 100 :} sept critères notés de 0 à 5, multipliés par leur poids.
+  \item \textbf{Indice de confiance :} la part du score qui repose sur des faits vérifiés.
+\end{enumerate}
+
+\subsection{Critères et pondération}
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}l c X@{}}
+\toprule
+\textbf{Critère} & \textbf{Poids} & \textbf{Ce qu'on mesure} \\
+\midrule
+Rôle d'intermédiaire & 25 & Consulte-t-elle un réseau de prestataires pour répondre à ses clients ? \\
+Volume de demandes & 10 & Nombre de cotations, offres ou commandes traitées \\
+Demandes non structurées & 15 & Texte libre, e-mails, PDF, plans à lire \\
+Proximité avec un cas Mirage & 15 & Même métier, même mécanique ou simple analogie \\
+Logiciel intégrable & 10 & Logiciel cœur (TMS, ERP, chiffrage) connu, avec ou sans API \\
+Taille et budget & 10 & Idéal entre 20 et 500 salariés \\
+Signal de timing & 15 & Raison d'agir maintenant : croissance, rachat, recrutements, gros contrat \\
+\midrule
+\textbf{Total} & \textbf{100} & \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Données manquantes et incertitudes}
+\begin{itemize}
+  \item \textbf{Donnée inconnue :} note neutre de 2,5 sur 5. On ne récompense pas ce qu'on ignore, sans éliminer l'entreprise.
+  \item \textbf{Hypothèse :} la note se rapproche d'un point de la note neutre (5 devient 4, 0 devient 1). Le doute joue dans les deux sens.
+  \item \textbf{Signal négatif vérifié} (litige, difficultés financières) : il l'emporte sur tous les signaux positifs.
+  \item Une entreprise avec un score d'au moins 70 mais une confiance inférieure à 50 \% est classée \textbf{« À approfondir »} : elle demande des recherches complémentaires avant tout contact.
+\end{itemize}
+
+\subsection{Classement obtenu}
+\begin{center}
+\small
+\begin{tabular}{@{}c l c c l@{}}
+\toprule
+\textbf{Rang} & \textbf{Entreprise} & \textbf{Score} & \textbf{Confiance} & \textbf{Priorité} \\
+\midrule
+1 & Grup Rubau & 82,0 & 85 \% & Prioritaire \\
+2 & Ibercóndor & 78,5 & 60 \% & Prioritaire \\
+3 & García de Pou & 76,0 & 90 \% & Prioritaire \\
+4 & Ibertransit & 76,0 & 40 \% & À approfondir \\
+5 & Calaf Constructora & 74,0 & 75 \% & Prioritaire \\
+6 & Aduanas Pujol Rubió & 73,0 & 50 \% & Prioritaire \\
+7 & Gutmar & 71,0 & 65 \% & Prioritaire \\
+8 & Mecánica Hosta & 63,5 & 50 \% & Secondaire \\
+9 & Bacus Events & 61,5 & 55 \% & Secondaire \\
+10 & CREA Group Events & 58,5 & 55 \% & Secondaire \\
+\midrule
+-- & Grupo Moldtrans & -- & -- & Écartée \\
+-- & Transcoma & -- & -- & Écartée \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Ibertransit obtient le même score que García de Pou, mais repose surtout sur des hypothèses (40 \% de confiance) : conformément à la règle, elle est à approfondir avant d'être contactée.
+
+% ============================================================== PARTIE 5 ====
+\section{Approche commerciale des trois meilleures cibles}
+
+Pour chaque entreprise, on vise un \textbf{duo} : un \textbf{sponsor} qui a le pouvoir de lancer un projet, et un \textbf{utilisateur} qui vit le problème au quotidien. Le premier contact se fait par e-mail, ou par LinkedIn si l'adresse est introuvable, avec une relance 4 à 5 jours plus tard. Les messages sont rédigés ici en français et seront envoyés en espagnol.
+
+% ------------------------------------------------------------------ RUBAU --
+\subsection{Grup Rubau (BTP)}
+
+\textbf{Pourquoi cette entreprise :} premier score (82/100) avec la confiance la plus solide parmi les meilleures cibles (85 \%). Le workflow visé est décrit noir sur blanc dans leurs offres d'emploi, et deux signaux de timing sont vérifiés : une croissance de 11 \% et des recrutements en études. L'arrivée récente d'un Global CIO chargé de l'IA renforce encore le timing.
+
+\rubrique{Interlocuteurs}
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Nom} & \textbf{Poste} & \textbf{Pourquoi le contacter} \\
+\midrule
+Josep Antoni Pérez Frias & Global CIO (tech, données, IA) & Arrivé il y a environ 4 mois, il cherche ses premiers projets d'IA. \textbf{Sponsor, à contacter en premier.} \\
+Maite Rodriguez Salvà & Responsable Études Bâtiment & Son équipe fait les métrés et compare les devis des sous-traitants. \textbf{Utilisatrice.} \\
+Mar Soler Mampel & Directrice des systèmes intégrés & Elle porte l'innovation dans le groupe. \textbf{Relais.} \\
+Miguel Jurado Fernández & CEO & Décideur final, à solliciter une fois l'intérêt confirmé. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\rubrique{Premier workflow à vendre : préparation des offres}
+Lecture des plans et métrés automatiques, découpage en lots, consultation et comparaison des devis des sous-traitants, saisie dans Presto. Chaque quantité reste reliée à son plan d'origine et validée par un technicien d'études.
+
+\textbf{Cas Mirage le plus pertinent :} OCBM, une entreprise générale de BTP (même métier), complété par John Cockerill pour le gain chiffré (métré de tuyauterie 80 à 90 \% plus rapide).
+
+\begin{mailbox}{Objet : Métrés et appels d'offres chez Rubau}
+Bonjour Josep Antoni,
+
+Je suis Kilian Viallon, GTM Engineer chez Mirage Metrics. Nous déployons des agents IA directement dans les outils de nos clients pour automatiser leurs tâches les plus répétitives, avec une validation humaine sur les cas particuliers.
+
+Avec plus de 140 marchés publics remportés et une croissance de 11 \% en 2025, j'imagine que vos équipes d'études préparent un volume important d'offres, entre les métrés et la comparaison des devis de sous-traitants. C'est exactement le type de travail que nous automatisons : chez John Cockerill, le temps de métré de tuyauterie a baissé de 80 à 90 \%.
+
+Auriez-vous 20 minutes mardi ou jeudi prochain ? J'aimerais comprendre comment vos équipes préparent leurs offres aujourd'hui.
+
+Bien à vous,\\
+Kilian Viallon
+\end{mailbox}
+
+\textbf{Prochaine étape visée :} un appel de découverte de 20 minutes, avec pour objectif d'obtenir un dossier d'appel d'offres récent pour montrer l'agent sur leurs propres plans.
+
+% ------------------------------------------------------------- IBERCÓNDOR --
+\subsection{Ibercóndor (transport)}
+
+\textbf{Pourquoi cette entreprise :} deuxième score (78,5/100). C'est la cible la plus proche d'OFRET (même métier), avec un TMS identifié (Visual Trans) et un poste de Pricing Manager dédié aux cotations, signe d'un volume important.
+
+\rubrique{Interlocuteurs}
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Nom} & \textbf{Poste} & \textbf{Pourquoi le contacter} \\
+\midrule
+Claudio González García & Operations Manager & Il a l'autorité pour changer les processus et vient d'un grand groupe très automatisé. \textbf{Décideur, à contacter en premier.} \\
+Johan Jaramillo Montoya & Pricing Manager & Il gère les cotations, le workflow exact d'OFRET. \textbf{Utilisateur.} \\
+Fernando Tarrés & IT Manager & Il connaît Visual Trans et peut confirmer l'API. \textbf{Validation technique.} \\
+Daniel Cabeza & Directeur commercial & Des devis plus rapides lui font gagner des affaires. \textbf{Allié.} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\rubrique{Premier workflow à vendre : cotation des demandes de transport}
+Lecture de la demande en texte libre, extraction des données, calcul du prix (grille en groupage, transporteur en transport complet), devis envoyé au client et enregistré dans Visual Trans ; les cas inhabituels sont transmis au service pricing.
+
+\textbf{Cas Mirage le plus pertinent :} OFRET / SWILL (même métier).
+
+\begin{mailbox}{Objet : Cotations transport chez Ibercóndor}
+Bonjour Claudio,
+
+Je suis Kilian Viallon, GTM Engineer chez Mirage Metrics. Nous déployons des agents IA directement dans les outils de nos clients pour automatiser leurs tâches les plus répétitives, avec une validation humaine sur les cas particuliers.
+
+Avec une offre route, maritime et aérienne et des équipes à Barcelone, Madrid et Valence, j'imagine que vous recevez chaque jour un volume important de demandes de cotation, souvent par e-mail et dans des formats très variés. C'est exactement le type de travail que nous automatisons : chez OFRET, un commissionnaire qui fait du groupage et du transport complet, plus de 90 \% des demandes standard sont traitées automatiquement, directement dans son TMS, et le délai de réponse est passé de plusieurs heures à quelques minutes.
+
+Auriez-vous 20 minutes mardi ou jeudi prochain ? J'aimerais comprendre comment vos équipes traitent les demandes de cotation aujourd'hui.
+
+Bien à vous,\\
+Kilian Viallon
+\end{mailbox}
+
+\textbf{Prochaine étape visée :} un appel de découverte de 20 minutes, puis l'envoi d'une vingtaine de demandes de cotation récentes (anonymisées) pour une démonstration sur leurs données, avec l'IT Manager pour valider l'intégration à Visual Trans.
+
+% ---------------------------------------------------------- GARCÍA DE POU --
+\subsection{García de Pou (distribution)}
+
+\textbf{Pourquoi cette entreprise :} troisième score (76/100) et la confiance la plus élevée (90 \%). Le cas Biodéal correspond au même métier, et le volume de commandes est considérable (plus de 70\,000 clients).
+
+\rubrique{Interlocuteurs}
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Nom} & \textbf{Poste} & \textbf{Pourquoi le contacter} \\
+\midrule
+Gerard Caula Cortés & Transformation digitale et e-commerce & Il gère déjà les intégrations ERP et l'automatisation des commandes en ligne. \textbf{Sponsor, à contacter en premier.} \\
+Adam Viusa & Responsable informatique & Il maîtrise l'ERP (Dynamics AX) où les commandes seraient créées. \textbf{Validation technique.} \\
+Manuel Gimeno & Adjoint logistique & Il subit les erreurs de saisie au quotidien. \textbf{Relais opérationnel.} \\
+Chantal Olivé Tena & Directrice des achats & Elle connaît bien l'entreprise, mais gère surtout les fournisseurs. \textbf{Contact secondaire.} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\rubrique{Premier workflow à vendre : saisie des commandes reçues hors boutique en ligne}
+Lecture de la commande (PDF, e-mail, tableur), identification du client et des références, vérification des prix et du stock, création de la commande dans l'ERP, confirmation au client ; les lignes incertaines sont signalées à l'équipe.
+
+\textbf{Cas Mirage le plus pertinent :} Biodéal (même métier).
+
+\begin{mailbox}{Objet : Commandes reçues par e-mail chez García de Pou}
+Bonjour Gerard,
+
+Je suis Kilian Viallon, GTM Engineer chez Mirage Metrics. Nous déployons des agents IA directement dans les outils de nos clients pour automatiser leurs tâches les plus répétitives, avec une validation humaine sur les cas particuliers.
+
+Avec plus de 70\,000 clients dans 70 pays, vous avez déjà automatisé une bonne partie des commandes grâce à votre boutique en ligne. J'imagine pourtant qu'une part importante arrive encore par e-mail, en PDF ou en Excel, notamment chez les grossistes et les grands comptes, et doit être saisie à la main dans l'ERP. C'est exactement le type de travail que nous automatisons : chez Biodéal, un distributeur, les commandes reçues par e-mail sont créées automatiquement dans SAP en 48 secondes en médiane.
+
+Auriez-vous 20 minutes mardi ou jeudi prochain ? J'aimerais comprendre comment vos équipes traitent les commandes qui n'arrivent pas par la boutique en ligne.
+
+Bien à vous,\\
+Kilian Viallon
+\end{mailbox}
+
+\textbf{Prochaine étape visée :} un appel de découverte de 20 minutes pour mesurer la part des commandes reçues hors boutique en ligne, puis un test sur un échantillon de bons de commande réels.
+
+% ============================================================== PARTIE 6 ====
+\section{Faux positifs}
+
+Deux entreprises semblaient au départ parmi les meilleures cibles. L'outil les écarte automatiquement, chacune par une règle de disqualification différente.
+
+\subsection{Grupo Moldtrans : centre de décision hors de la zone}
+\textbf{Site :} \href{https://www.moldtrans.com/}{moldtrans.com} -- Commissionnaire de transport à Montcada i Reixac (Barcelone) : groupage, transport complet, division maritime et aérienne. \textbf{Cas Mirage :} OFRET / SWILL.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Fondé en 1979 ; « servicios directos de grupaje y carga completa con Europa, norte de África y Turquía » (\href{https://www.moldtrans.com/nosotros/}{à propos}).
+  \item Environ 700 salariés, 152 M€ de chiffre d'affaires en 2025, 24 sites (\href{https://trans.info/fr/dimotrans-acquiert-moldtrans-2026-448891}{Trans.info}).
+  \item TMS identifié : Visual Trans, adopté en 2024 pour la division maritime et aérienne (\href{https://www.interempresas.net/Transporte-multimodal/569591-La-division-maritima-y-aerea-del-Grupo-Moldtrans-avanza-en-su-proceso-de-digitalizacion.html}{Interempresas}).
+  \item Janvier 2026 : 78 \% du capital racheté par le groupe français Dimotrans (\href{https://trans.info/fr/dimotrans-acquiert-moldtrans-2026-448891}{Trans.info}).
+\end{itemize}
+\rubrique{Pourquoi elle semblait intéressante}
+Le double modèle groupage et transport complet est le plus proche d'OFRET/SWILL de toute la Catalogne, avec un volume probablement important et un TMS connu.
+\rubrique{Pourquoi elle est écartée}
+Depuis le rachat, le centre de décision est en France : le choix des outils risque de se faire au siège de Dimotrans, avec une harmonisation des systèmes du groupe. Une prospection locale n'a plus de prise sur la décision.
+\rubrique{Hypothèses commerciales}
+\begin{itemize}
+  \item[] \hyp Le choix d'un outil de cotation sera aligné sur celui de Dimotrans.
+  \item[] \hyp Piste pour plus tard : une approche du siège de Dimotrans en France, avec OFRET comme référence, dans une démarche grands comptes distincte.
+\end{itemize}
+
+\subsection{Transcoma : procédure collective}
+\textbf{Site :} \href{https://www.transcoma.com/}{transcoma.com} -- Transitaire et opérateur logistique, ZAL du port de Barcelone. \textbf{Cas Mirage :} OFRET / SWILL.
+
+\rubrique{Faits vérifiés}
+\begin{itemize}
+  \item Groupe logistique barcelonais : plus de 320 salariés et environ 260 M€ de chiffre d'affaires en 2019 (\href{https://www.alimarket.es/logistica/noticia/304329/transcoma-vuelve-a-ser-un-grupo}{Alimarket}).
+  \item Juin 2026 : procédure collective volontaire devant le tribunal de commerce n\textsuperscript{o}~12 de Barcelone (\href{https://www.cadenadesuministro.es/logistica/transcoma-global-logistics-en-concurso-voluntario_1517042_102.html}{Cadena de Suministro}).
+\end{itemize}
+\rubrique{Pourquoi elle semblait intéressante}
+Un transitaire catalan de taille moyenne au cœur du port de Barcelone, avec le même métier qu'OFRET et un volume de demandes probablement élevé.
+\rubrique{Pourquoi elle est écartée}
+Une entreprise en procédure collective est placée sous la surveillance d'un administrateur judiciaire : les dépenses non essentielles sont gelées et son avenir est incertain. Investir dans un nouvel outil n'est pas une priorité, et Mirage risquerait de ne pas être payé.
+\rubrique{Hypothèse commerciale}
+\begin{itemize}
+  \item[] \hyp Si l'entreprise est reprise par un repreneur solide, elle pourrait redevenir une cible : il faudra suivre l'issue de la procédure.
+\end{itemize}
+
+% ============================================================== PARTIE 7 ====
+\section{Livrables et temps passé}
+
+\begin{itemize}
+  \item \textbf{Synthèse :} ce document.
+  \item \textbf{Outil de scoring :} code, données, configuration, tests et instructions sur \href{https://github.com/kilianviallon/mirage-prospect-scoring}{GitHub}.
+  \item \textbf{Sources :} citées dans chaque fiche ; la source de chaque donnée est aussi enregistrée dans le fichier \texttt{data/companies.yaml} du dépôt.
+  \item \textbf{Vidéo de démonstration :} [lien à ajouter].
+  \item \textbf{Temps consacré à l'exercice :} [à compléter].
+  \item \textbf{Outils d'IA utilisés :} Claude, pour la recherche documentaire, la relecture et l'aide au développement. Les choix de cibles, de critères et de pondération sont les miens, et chaque source a été vérifiée.
+\end{itemize}
+
+\end{document}
