@@ -13,7 +13,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from scoring.engine import rank, score_company  # noqa: E402
 from scoring.explain import explain  # noqa: E402
-from scoring.labels import BOOLEAN_FIELDS, CHOICES, PRIORITY_COLORS, SECTORS, STATUS  # noqa: E402
+from scoring.labels import (  # noqa: E402
+    BOOLEAN_FIELDS, CHOICES, PRIORITY_COLORS, SECTORS, SIGNAL_TYPES, SIGNAL_YEARS, STATUS,
+)
 from scoring.loader import append_company, load_companies, load_config  # noqa: E402
 
 UNKNOWN = "— Inconnu —"
@@ -171,18 +173,24 @@ with tab_add:
         employees_status = c2.selectbox("Statut", list(STATUS_OPTIONS), key="s_employees")
         employees_source = c3.text_input("Source (URL)", key="src_employees")
 
-        st.markdown(f"**{criteria['timing']['label']}** (jusqu'à 3 signaux, laisser vide si aucun)")
+        st.markdown(f"**{criteria['timing']['label']}** (jusqu'à 3 signaux ; laisser « Aucun » s'il n'y en a pas)")
+        signal_options = ["— Aucun —"] + [label for label, _ in SIGNAL_TYPES.values()]
         signals = []
         for i in range(3):
-            c1, c2, c3, c4 = st.columns([3, 1.3, 1, 2.7])
-            desc = c1.text_input(f"Signal {i + 1}", key=f"sig_d_{i}",
-                                 placeholder="ex. croissance de 15 %, rachat, recrutements…")
-            sig_status = c2.selectbox("Statut", list(STATUS_OPTIONS), key=f"sig_s_{i}")
-            negative = c3.selectbox("Effet", ["Positif", "Négatif"], key=f"sig_n_{i}")
-            sig_source = c4.text_input("Source (URL)", key=f"sig_src_{i}")
-            if desc.strip():
-                signals.append({"description": desc.strip(), "status": STATUS_OPTIONS[sig_status],
-                                "source": sig_source or None, "negative": negative == "Négatif"})
+            c1, c2, c3, c4, c5 = st.columns([2.6, 1, 1.3, 2.2, 2.2])
+            picked = c1.selectbox(f"Signal {i + 1}", signal_options, key=f"sig_t_{i}")
+            year = c2.selectbox("Année", SIGNAL_YEARS, key=f"sig_y_{i}")
+            sig_status = c3.selectbox("Statut", list(STATUS_OPTIONS), key=f"sig_s_{i}")
+            detail = c4.text_input("Précision (facultatif)", key=f"sig_d_{i}",
+                                   placeholder="ex. +11 % de CA, contrat de 33 M€…")
+            sig_source = c5.text_input("Source (URL)", key=f"sig_src_{i}")
+            if picked != signal_options[0]:
+                sig_type = next(k for k, (label, _) in SIGNAL_TYPES.items() if label == picked)
+                label, negative = SIGNAL_TYPES[sig_type]
+                description = f"{label} ({year})" + (f" : {detail.strip()}" if detail.strip() else "")
+                signals.append({"type": sig_type, "year": year, "description": description,
+                                "status": STATUS_OPTIONS[sig_status], "source": sig_source or None,
+                                "negative": negative})
 
         b1, b2 = st.columns(2)
         compute = b1.form_submit_button("🧮 Calculer le score", width="stretch")

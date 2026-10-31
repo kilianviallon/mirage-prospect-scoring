@@ -40,5 +40,9 @@
     {value: null, status: null, source: null, name: null}
   employees:            # nombre de salariés
     {value: null, status: null, source: null}
-  signals:              # liste de signaux ; negative: true pour un signal défavorable
-    - {description: "...", status: fact, source: "https://...", negative: false}
+  signals:              # liste de signaux de timing (vide [] si aucun)
+    # type : croissance | recrutement | rachat_direction | gros_contrat | expansion |
+    #        changement_logiciel | promesse_delai | autre_positif |
+    #        baisse_activite | litige | difficultes_financieres | autre_negatif (négatifs)
+    # year : 2026 | 2025 | 2024 | Avant 2024
+    - {type: croissance, year: "2026", description: "...", status: fact, source: "https://...", negative: false}

@@ -7,6 +7,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT / "config" / "scoring.yaml"
 COMPANIES_PATH = ROOT / "data" / "companies.yaml"
+FALSE_POSITIVES_PATH = ROOT / "data" / "false_positives.yaml"
 
 
 def load_config(path=CONFIG_PATH):

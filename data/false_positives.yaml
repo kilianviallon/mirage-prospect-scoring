@@ -1,0 +1,86 @@
+# =============================================================================
+# Faux positifs (partie 6 de l'étude de cas)
+# Entreprises qui semblaient intéressantes mais que l'analyse écarte.
+# Ce fichier n'apparaît pas dans le classement de l'interface : il sert à
+# documenter la partie 6 et à tester les règles de disqualification.
+# =============================================================================
+
+
+- name: "Transcoma"
+  website: "https://www.transcoma.com/"
+  sector: transport
+  city: "Barcelone"
+  reference_case: "OFRET / SWILL"
+  notes: "Profil idéal sur le papier, mais en procédure collective depuis juin 2026."
+  legal_status: {value: procedure_collective, status: fact, source: "https://www.cadenadesuministro.es/logistica/transcoma-global-logistics-en-concurso-voluntario_1517042_102.html"}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: null}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: transitaire, status: fact, source: "https://www.alimarket.es/logistica/noticia/304329/transcoma-vuelve-a-ser-un-grupo"}
+  volume_level: {value: eleve, status: hypothesis, source: null}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: false, status: hypothesis, source: null}
+  case_match: {value: same_business, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 320, status: hypothesis, source: "https://www.alimarket.es/logistica/noticia/304329/transcoma-vuelve-a-ser-un-grupo"}
+  signals:
+    - {type: difficultes_financieres, year: "2026", description: "Procédure collective volontaire (juin 2026)", status: fact, source: "https://www.cadenadesuministro.es/logistica/transcoma-global-logistics-en-concurso-voluntario_1517042_102.html", negative: true}
+
+- name: "Grupo Moldtrans"
+  website: "https://www.moldtrans.com/"
+  sector: transport
+  city: "Montcada i Reixac"
+  reference_case: "OFRET / SWILL"
+  notes: "Groupage + complet, très proche de SWILL ; 78 % racheté par le français Dimotrans (janv. 2026)."
+  legal_status: {value: active, status: fact, source: "https://trans.info/fr/dimotrans-acquiert-moldtrans-2026-448891"}
+  decision_center_outside_zone: {value: true, status: fact, source: "https://trans.info/fr/dimotrans-acquiert-moldtrans-2026-448891"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: commissionnaire, status: fact, source: "https://www.moldtrans.com/nosotros/"}
+  volume_level: {value: eleve, status: hypothesis, source: null}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: false, status: hypothesis, source: null}
+  case_match: {value: same_business, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: known, status: fact, source: "https://www.interempresas.net/Transporte-multimodal/569591-La-division-maritima-y-aerea-del-Grupo-Moldtrans-avanza-en-su-proceso-de-digitalizacion.html", name: "Visual Trans"}
+  employees: {value: 700, status: fact, source: "https://trans.info/fr/dimotrans-acquiert-moldtrans-2026-448891"}
+  signals: []
+
+- name: "Copcisa"
+  website: "https://www.copcisa.com/es/"
+  sector: btp
+  city: "Terrassa"
+  reference_case: "OCBM / Rouandi"
+  notes: "Groupe de 1 474 salariés ; litige judiciaire entre actionnaires sur la propriété."
+  legal_status: {value: active, status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590"}
+  decision_center_outside_zone: {value: false, status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: entreprise_generale, status: fact, source: "https://www.copcisa.com/es/"}
+  volume_level: {value: eleve, status: hypothesis, source: "https://contratos.gobierto.es/adjudicatarios/copcisa-s-a"}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: true, status: hypothesis, source: null}
+  case_match: {value: same_mechanism, status: fact, source: "https://miragemetrics.com/case-studies/ocbm"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 1474, status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590"}
+  signals:
+    - {type: litige, year: "2026", description: "Litige judiciaire entre actionnaires sur la propriété du groupe", status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590", negative: true}
+    - {type: croissance, year: "2025", description: "Chiffre d'affaires 2025 en hausse de 17 % (383 M€)", status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590", negative: false}
+
+- name: "Grupo Navec"
+  website: null
+  sector: industrie
+  city: "Tarragone"
+  reference_case: "John Cockerill (tuyauterie industrielle)"
+  notes: "Montage industriel de tuyauterie ; en liquidation."
+  legal_status: {value: liquidation, status: fact, source: "https://www.alimarket.es/construccion/noticia/396368/el-grupo-industrial-navec-solicita-el-concurso-de-acreedores"}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: null}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: sous_traitant_industriel, status: hypothesis, source: null}
+  volume_level: {value: null, status: null, source: null}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: null, status: null, source: null}
+  drawings_to_read: {value: true, status: hypothesis, source: null}
+  case_match: {value: same_mechanism, status: fact, source: "https://miragemetrics.com/case-studies/john-cockerill"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: null, status: null, source: null}
+  signals: []

@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from scoring.engine import adjust_for_status, rank, score_company  # noqa: E402
-from scoring.loader import load_companies, load_config  # noqa: E402
+from scoring.loader import FALSE_POSITIVES_PATH, load_companies, load_config  # noqa: E402
 
 CONFIG = load_config()
 
@@ -47,7 +47,7 @@ def test_methodology_example_gives_80_5():
 
 
 def test_false_positives_are_excluded():
-    results = {r["name"]: r for r in rank(load_companies(), CONFIG)}
+    results = {r["name"]: r for r in rank(load_companies(FALSE_POSITIVES_PATH), CONFIG)}
     assert results["Transcoma"]["disqualified"]
     assert results["Grupo Moldtrans"]["disqualified"]
     assert results["Grupo Navec"]["disqualified"]
