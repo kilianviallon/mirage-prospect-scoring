@@ -1,0 +1,293 @@
+# =============================================================================
+# Données des entreprises analysées (zone : Catalogne)
+# Chaque donnée : value, status (fact = vérifié | hypothesis = supposé), source.
+# value: null = donnée inconnue → note neutre (2.5).
+# Les notes ne sont PAS saisies ici : l'outil les calcule avec config/scoring.yaml.
+# =============================================================================
+
+# ----------------------------------------------------------------- TRANSPORT --
+
+- name: "Ibertransit"
+  website: "https://ibertransit.com/"
+  sector: transport
+  city: "Parets del Vallès"
+  reference_case: "OFRET / SWILL (transport complet + groupage)"
+  notes: "Promesse publique d'un devis en 15 minutes ; membre du réseau Palletways."
+  legal_status: {value: active, status: hypothesis, source: "https://infonif.economia3.com/ficha-empresa/ibertransit-worldwide-logistics-sl"}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: null}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: commissionnaire, status: fact, source: "https://ibertransit.com/cargas-completas-europa/"}
+  volume_level: {value: eleve, status: hypothesis, source: "https://ibertransit.com/"}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: false, status: fact, source: "https://ibertransit.com/grupajes-internacionales/"}
+  case_match: {value: same_business, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 35, status: hypothesis, source: "https://infonif.economia3.com/ficha-empresa/ibertransit-worldwide-logistics-sl"}
+  signals: []
+
+- name: "Aduanas Pujol Rubió (APR)"
+  website: "https://www.apr.es/"
+  sector: transport
+  city: "El Prat de Llobregat"
+  reference_case: "OFRET / SWILL ; documentation douanière (prochaine étape annoncée par Mirage)"
+  notes: "Outil Easy Rate pour les tarifs aériens et maritimes : la route n'est pas couverte."
+  legal_status: {value: active, status: fact, source: "https://www.apr.es/quienes-somos/"}
+  decision_center_outside_zone: {value: false, status: fact, source: "https://www.apr.es/quienes-somos/"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: "https://www.apr.es/area-cliente/"}
+  business_model: {value: transitaire, status: fact, source: "https://www.apr.es/"}
+  volume_level: {value: eleve, status: hypothesis, source: "https://www.apr.es/quienes-somos/"}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: false, status: fact, source: "https://www.apr.es/transporte-terrestre/"}
+  case_match: {value: same_business, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 140, status: fact, source: "https://www.apr.es/quienes-somos/"}
+  signals: []
+
+- name: "Ibercóndor"
+  website: "https://ibercondor.com/"
+  sector: transport
+  city: "Barcelone"
+  reference_case: "OFRET / SWILL"
+  notes: "Espace client hébergé sur Visual Trans : vérifier l'existence d'une API."
+  legal_status: {value: active, status: hypothesis, source: null}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: null}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: transitaire, status: fact, source: "https://ibercondor.com/transporte-de-mercancias/transporte-terrestre-de-mercancias/"}
+  volume_level: {value: eleve, status: hypothesis, source: "https://ibercondor.com/"}
+  free_text_requests: {value: true, status: fact, source: "https://ibercondor.com/contacto/"}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: false, status: fact, source: "https://ibercondor.com/"}
+  case_match: {value: same_business, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: known, status: fact, source: "https://ibercondor.com/contacto/", name: "Visual Trans"}
+  employees: {value: 100, status: fact, source: "https://ibercondor.com/"}
+  signals: []
+
+# ----------------------------------------------------------------------- BTP --
+
+- name: "Grup Rubau"
+  website: "https://www.rubau.com/"
+  sector: btp
+  city: "Girona"
+  reference_case: "OCBM / Rouandi (métrés, estimation)"
+  notes: "Offres d'emploi de technicien d'études décrivant le workflow exact (métrés, lots, devis sous-traitants, Presto)."
+  legal_status: {value: active, status: fact, source: "https://www.viaempresa.cat/empresa/gironina-rubau-creix-11-tanca-2025-arribant-227-milions-euros_2237049_102.html"}
+  decision_center_outside_zone: {value: false, status: fact, source: "https://cronicaglobal.elespanol.com/business/confidente-vip/20240904/la-constructora-gerundense-rubau-bate-records-millones/883161775_0.html"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: entreprise_generale, status: fact, source: "https://construccionsrubau.teamtailor.com/jobs/8395657-tecnico-de-estudios-junior-h-m"}
+  volume_level: {value: eleve, status: fact, source: "https://www.contractes.cat/empreses/A17018813"}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: "https://construccionsrubau.teamtailor.com/jobs/8395657-tecnico-de-estudios-junior-h-m"}
+  drawings_to_read: {value: true, status: fact, source: "https://construccionsrubau.teamtailor.com/jobs/8395657-tecnico-de-estudios-junior-h-m"}
+  case_match: {value: same_mechanism, status: fact, source: "https://miragemetrics.com/case-studies/ocbm"}
+  software_status: {value: known, status: fact, source: "https://construccionsrubau.teamtailor.com/jobs/8296536-tecnico-de-estudios-h-m-edificacion", name: "Presto"}
+  employees: {value: 420, status: fact, source: "https://cronicaglobal.elespanol.com/business/confidente-vip/20240904/la-constructora-gerundense-rubau-bate-records-millones/883161775_0.html"}
+  signals:
+    - {description: "Chiffre d'affaires 2025 en hausse de 11 % (227 M€)", status: fact, source: "https://www.viaempresa.cat/empresa/gironina-rubau-creix-11-tanca-2025-arribant-227-milions-euros_2237049_102.html", negative: false}
+    - {description: "Recrutement de techniciens d'études (workflow visé)", status: fact, source: "https://construccionsrubau.teamtailor.com/jobs/8395657-tecnico-de-estudios-junior-h-m", negative: false}
+
+- name: "Calaf Constructora (Calaf Grup)"
+  website: "https://calafconstructora.com/"
+  sector: btp
+  city: "Calaf / Sant Joan Despí"
+  reference_case: "OCBM / Rouandi ; John Cockerill pour les nomenclatures de Calaf Industrial"
+  notes: "Groupe familial ; mécène de l'ITeC (éditeur de TCQ/BEDEC), usage non confirmé."
+  legal_status: {value: active, status: fact, source: "https://calafgrup.com/en/"}
+  decision_center_outside_zone: {value: false, status: fact, source: "https://www.cronicaglobal.cat/vida/20261014/calaf-serom-construiran-primera-gran-vall-dhebron/1003742802404_0.html"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: entreprise_generale, status: fact, source: "https://calafconstructora.com/en/projects/"}
+  volume_level: {value: eleve, status: fact, source: "https://contratos.gobierto.es/adjudicatarios/constructora-de-calaf-sau"}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: true, status: hypothesis, source: null}
+  case_match: {value: same_mechanism, status: fact, source: "https://miragemetrics.com/case-studies/ocbm"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 800, status: fact, source: "https://calafgrup.com/en/"}
+  signals:
+    - {description: "Remporte le bâtiment ambulatoire de Vall d'Hebron (33 M€, oct. 2026)", status: fact, source: "https://www.cronicaglobal.cat/vida/20261014/calaf-serom-construiran-primera-gran-vall-dhebron/1003742802404_0.html", negative: false}
+
+# ------------------------------------------------------------------ INDUSTRIE --
+
+- name: "Gutmar"
+  website: "https://www.gutmar.com/"
+  sector: industrie
+  city: "Sant Cugat del Vallès"
+  reference_case: "John Cockerill (lecture de plans, chiffrage)"
+  notes: "Racheté en 2025 par le fonds espagnol Lauria Partners ; nouvelle direction."
+  legal_status: {value: active, status: fact, source: "https://fly-news.es/industria/lauria-partners-compra-gutmar/"}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: "https://www.elnacional.cat/oneconomia/es/empresas/ingenieria-catalana-alta-precision-gutmar-se-vende-lauria-hyperion_1399651_102.html"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: sous_traitant_industriel, status: fact, source: "https://dca.cat/ca/membre/gutmar-s-a/"}
+  volume_level: {value: eleve, status: hypothesis, source: "https://dca.cat/ca/membre/gutmar-s-a/"}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: true, status: hypothesis, source: "https://dca.cat/ca/membre/gutmar-s-a/"}
+  case_match: {value: same_mechanism, status: fact, source: "https://miragemetrics.com/case-studies/john-cockerill"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 110, status: fact, source: "https://fly-news.es/industria/lauria-partners-compra-gutmar/"}
+  signals:
+    - {description: "Rachat par Lauria Partners (2025), objectif de « professionnaliser »", status: fact, source: "https://www.elnacional.cat/oneconomia/es/empresas/ingenieria-catalana-alta-precision-gutmar-se-vende-lauria-hyperion_1399651_102.html", negative: false}
+    - {description: "Objectif 25 M€ en 2026 et 100 recrutements (titre d'article seulement)", status: hypothesis, source: "https://www.eleconomista.es/industria/noticias/13896466/04/26/gutmar-aprieta-el-acelerador-preve-alcanzar-los-25-millones-en-2026-y-fichara-a-100-trabajadores.html", negative: false}
+
+- name: "Mecánica Hosta"
+  website: "https://mecanicahosta.com/"
+  sector: industrie
+  city: "Riells i Viabrea"
+  reference_case: "John Cockerill (lecture de plans, chiffrage)"
+  notes: "Devis promis sous 24/48 h après envoi des fichiers CAD ; coordonne ses partenaires de traitement."
+  legal_status: {value: active, status: hypothesis, source: null}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: "https://mecanicahosta.com/compania/"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: sous_traitant_industriel, status: fact, source: "https://mecanicahosta.com/tratamientos-y-servicios/"}
+  volume_level: {value: moyen, status: hypothesis, source: null}
+  free_text_requests: {value: true, status: fact, source: "https://mecanicahosta.com/contacto/"}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: true, status: fact, source: "https://mecanicahosta.com/contacto/"}
+  case_match: {value: same_mechanism, status: fact, source: "https://miragemetrics.com/case-studies/john-cockerill"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 20, status: fact, source: "https://mecanicahosta.com/compania/"}
+  signals: []
+
+# --------------------------------------------------------------- ÉVÉNEMENTIEL --
+
+- name: "Bacus Events"
+  website: "https://bacusevents.com/"
+  sector: evenementiel
+  city: "Barcelone"
+  reference_case: "Analogie avec la cotation OFRET (pas de cas Mirage dans l'événementiel)"
+  notes: "Processus publié : réponse sous 24 h, proposition budgétée en moins de 2 semaines."
+  legal_status: {value: active, status: hypothesis, source: null}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: "https://bacusevents.com/estudio"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: agence_evenementielle, status: fact, source: "https://bacusevents.com/servicios"}
+  volume_level: {value: eleve, status: hypothesis, source: "https://bacusevents.com/estudio"}
+  free_text_requests: {value: true, status: fact, source: "https://bacusevents.com/contacto"}
+  email_or_pdf_orders: {value: true, status: fact, source: "https://bacusevents.com/contacto"}
+  drawings_to_read: {value: false, status: fact, source: "https://bacusevents.com/servicios"}
+  case_match: {value: analogy, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 25, status: hypothesis, source: null}
+  signals: []
+
+- name: "CREA Group Events"
+  website: "https://www.creagroupevents.com/"
+  sector: evenementiel
+  city: "Barcelone"
+  reference_case: "Analogie avec la cotation OFRET (pas de cas Mirage dans l'événementiel)"
+  notes: "Actionnaire (Eventforce Partners SL) à identifier."
+  legal_status: {value: active, status: fact, source: "https://infonif.economia3.com/ficha-empresa/crea-eventos-e-incentivos-barcelona-sl"}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: "https://www.creagroupevents.com/en/about-us"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: agence_evenementielle, status: fact, source: "https://www.creagroupevents.com/en/dmc-spain"}
+  volume_level: {value: eleve, status: hypothesis, source: "https://www.creagroupevents.com/en/about-us"}
+  free_text_requests: {value: true, status: fact, source: "https://www.creagroupevents.com/en/contact"}
+  email_or_pdf_orders: {value: true, status: fact, source: "https://www.creagroupevents.com/en/contact"}
+  drawings_to_read: {value: false, status: fact, source: "https://www.creagroupevents.com/en/dmc-spain"}
+  case_match: {value: analogy, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: null, status: null, source: null}
+  signals: []
+
+# --------------------------------------------------------------- DISTRIBUTION --
+
+- name: "García de Pou"
+  website: "https://www.garciadepou.com/"
+  sector: distribution
+  city: "Ordis"
+  reference_case: "Biodéal (commandes par e-mail saisies dans l'ERP)"
+  notes: "Boutique en ligne avec « Fast Order » : une partie des commandes est déjà structurée."
+  legal_status: {value: active, status: fact, source: "https://www.alimarket.es/envase/noticia_amp/399883/garcia-de-pou-se-expande-en-el-exterior-y-adquiere-terrenos-en-espana"}
+  decision_center_outside_zone: {value: false, status: fact, source: "https://www.garciadepou.com/nl/about-garcia-de-pou"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: "https://www.garciadepou.com/en/faqs-en"}
+  business_model: {value: distributeur_b2b, status: fact, source: "https://www.garciadepou.com/nl/about-garcia-de-pou"}
+  volume_level: {value: eleve, status: fact, source: "https://www.garciadepou.com/nl/about-garcia-de-pou"}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: fact, source: "https://www.garciadepou.com/en/faqs-en"}
+  drawings_to_read: {value: false, status: fact, source: "https://www.garciadepou.com/nl/about-garcia-de-pou"}
+  case_match: {value: same_business, status: fact, source: "https://miragemetrics.com/case-studies/biodeal"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 480, status: fact, source: "https://www.garciadepou.com/nl/about-garcia-de-pou"}
+  signals:
+    - {description: "Expansion à l'international et achat de terrains (déc. 2024)", status: fact, source: "https://www.alimarket.es/envase/noticia_amp/399883/garcia-de-pou-se-expande-en-el-exterior-y-adquiere-terrenos-en-espana", negative: false}
+
+# ------------------------------------------- FAUX POSITIFS (test des règles) --
+
+- name: "Transcoma"
+  website: "https://www.transcoma.com/"
+  sector: transport
+  city: "Barcelone"
+  reference_case: "OFRET / SWILL"
+  notes: "Profil idéal sur le papier, mais en procédure collective depuis juin 2026."
+  legal_status: {value: procedure_collective, status: fact, source: "https://www.cadenadesuministro.es/logistica/transcoma-global-logistics-en-concurso-voluntario_1517042_102.html"}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: null}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: transitaire, status: fact, source: "https://www.alimarket.es/logistica/noticia/304329/transcoma-vuelve-a-ser-un-grupo"}
+  volume_level: {value: eleve, status: hypothesis, source: null}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: false, status: hypothesis, source: null}
+  case_match: {value: same_business, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 320, status: hypothesis, source: "https://www.alimarket.es/logistica/noticia/304329/transcoma-vuelve-a-ser-un-grupo"}
+  signals:
+    - {description: "Procédure collective volontaire (juin 2026)", status: fact, source: "https://www.cadenadesuministro.es/logistica/transcoma-global-logistics-en-concurso-voluntario_1517042_102.html", negative: true}
+
+- name: "Grupo Moldtrans"
+  website: "https://www.moldtrans.com/"
+  sector: transport
+  city: "Montcada i Reixac"
+  reference_case: "OFRET / SWILL"
+  notes: "Groupage + complet, très proche de SWILL ; 78 % racheté par le français Dimotrans (janv. 2026)."
+  legal_status: {value: active, status: fact, source: "https://trans.info/fr/dimotrans-acquiert-moldtrans-2026-448891"}
+  decision_center_outside_zone: {value: true, status: fact, source: "https://trans.info/fr/dimotrans-acquiert-moldtrans-2026-448891"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: commissionnaire, status: fact, source: "https://www.moldtrans.com/nosotros/"}
+  volume_level: {value: eleve, status: hypothesis, source: null}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: false, status: hypothesis, source: null}
+  case_match: {value: same_business, status: fact, source: "https://miragemetrics.com/case-studies/ofret"}
+  software_status: {value: known, status: fact, source: "https://www.interempresas.net/Transporte-multimodal/569591-La-division-maritima-y-aerea-del-Grupo-Moldtrans-avanza-en-su-proceso-de-digitalizacion.html", name: "Visual Trans"}
+  employees: {value: 700, status: fact, source: "https://trans.info/fr/dimotrans-acquiert-moldtrans-2026-448891"}
+  signals: []
+
+- name: "Copcisa"
+  website: "https://www.copcisa.com/es/"
+  sector: btp
+  city: "Terrassa"
+  reference_case: "OCBM / Rouandi"
+  notes: "Groupe de 1 474 salariés ; litige judiciaire entre actionnaires sur la propriété."
+  legal_status: {value: active, status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590"}
+  decision_center_outside_zone: {value: false, status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590"}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: entreprise_generale, status: fact, source: "https://www.copcisa.com/es/"}
+  volume_level: {value: eleve, status: hypothesis, source: "https://contratos.gobierto.es/adjudicatarios/copcisa-s-a"}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: true, status: hypothesis, source: null}
+  drawings_to_read: {value: true, status: hypothesis, source: null}
+  case_match: {value: same_mechanism, status: fact, source: "https://miragemetrics.com/case-studies/ocbm"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: 1474, status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590"}
+  signals:
+    - {description: "Litige judiciaire entre actionnaires sur la propriété du groupe", status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590", negative: true}
+    - {description: "Chiffre d'affaires 2025 en hausse de 17 % (383 M€)", status: fact, source: "https://es.headtopics.com/news/copcisa-preve-superar-este-ano-los-400-millones-de-ingresos-87582590", negative: false}
+
+- name: "Grupo Navec"
+  website: null
+  sector: industrie
+  city: "Tarragone"
+  reference_case: "John Cockerill (tuyauterie industrielle)"
+  notes: "Montage industriel de tuyauterie ; en liquidation."
+  legal_status: {value: liquidation, status: fact, source: "https://www.alimarket.es/construccion/noticia/396368/el-grupo-industrial-navec-solicita-el-concurso-de-acreedores"}
+  decision_center_outside_zone: {value: false, status: hypothesis, source: null}
+  competitor_covers_core_workflow: {value: false, status: hypothesis, source: null}
+  business_model: {value: sous_traitant_industriel, status: hypothesis, source: null}
+  volume_level: {value: null, status: null, source: null}
+  free_text_requests: {value: null, status: null, source: null}
+  email_or_pdf_orders: {value: null, status: null, source: null}
+  drawings_to_read: {value: true, status: hypothesis, source: null}
+  case_match: {value: same_mechanism, status: fact, source: "https://miragemetrics.com/case-studies/john-cockerill"}
+  software_status: {value: null, status: null, source: null, name: null}
+  employees: {value: null, status: null, source: null}
+  signals: []

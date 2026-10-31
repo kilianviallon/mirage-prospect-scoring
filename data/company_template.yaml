@@ -1,0 +1,44 @@
+# =============================================================================
+# Modèle pour ajouter une entreprise
+# 1. Copier ce bloc à la fin de data/companies.yaml
+# 2. Remplir chaque donnée : value, status (fact | hypothesis), source (URL)
+#    Donnée inconnue : value: null (elle recevra la note neutre 2.5)
+# 3. Relancer le calcul
+# =============================================================================
+
+- name: "Nom de l'entreprise"
+  website: "https://..."
+  sector: "transport | btp | industrie | evenementiel | distribution | autre"
+  city: "Ville"
+  reference_case: "Cas Mirage le plus proche (texte libre, pour l'explication)"
+  notes: "Remarques utiles pour la prospection"
+
+  # --- Disqualification ---
+  legal_status:                     # active | procedure_collective | liquidation
+    {value: active, status: hypothesis, source: null}
+  decision_center_outside_zone:     # true si rachetée par un groupe qui décide ailleurs
+    {value: false, status: hypothesis, source: null}
+  competitor_covers_core_workflow:  # true si un outil concurrent fait déjà le travail
+    {value: false, status: hypothesis, source: null}
+
+  # --- Qualification ---
+  business_model:       # commissionnaire | transitaire | entreprise_generale |
+                        # sous_traitant_industriel | distributeur_b2b |
+                        # agence_evenementielle | transporteur_flotte_propre | autre
+    {value: null, status: null, source: null}
+  volume_level:         # eleve | moyen | faible
+    {value: null, status: null, source: null}
+  free_text_requests:   # true | false : demandes en texte libre
+    {value: null, status: null, source: null}
+  email_or_pdf_orders:  # true | false : demandes / commandes par e-mail ou PDF
+    {value: null, status: null, source: null}
+  drawings_to_read:     # true | false : plans à lire pour chiffrer
+    {value: null, status: null, source: null}
+  case_match:           # same_business | same_mechanism | analogy | none
+    {value: null, status: null, source: null}
+  software_status:      # known_with_api | known | null si inconnu
+    {value: null, status: null, source: null, name: null}
+  employees:            # nombre de salariés
+    {value: null, status: null, source: null}
+  signals:              # liste de signaux ; negative: true pour un signal défavorable
+    - {description: "...", status: fact, source: "https://...", negative: false}

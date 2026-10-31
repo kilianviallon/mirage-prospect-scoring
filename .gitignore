@@ -18,3 +18,5 @@ __pycache__/
 # fichier claude 
 
 CLAUDE.md 
+# Cache des tests
+.pytest_cache/
